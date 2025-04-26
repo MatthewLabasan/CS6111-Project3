@@ -41,19 +41,21 @@ def apriori(transactions, min_sup):
         for i in range(len(last_L)):
             for j in range(i+1, len(last_L)):
                 # Create new itemsets
-                union = set(last_L[i]) | set(last_L[j])
-                union_tuple = tuple(sorted(union)) 
-                if len(union_tuple) != k: # Remove if too big
-                     continue
-                
+                # SQL optimization: only join if first k-2 items are equal
+                if k == 2: # during the first iteration, the single items will have to be equal for join
+                    candidate = tuple(sorted(set(last_L[i]) | set(last_L[j])))
+                else:
+                    if set(last_L[i][:k-2]) == set(last_L[j][:k-2]) and last_L[i][-1] < last_L[j][-1]:
+                        candidate = last_L[i] + (last_L[j][-1],)
+                    else: continue
                 # Prune step
                 prune = True
-                for subset in combinations(union_tuple, k-1): 
+                for subset in combinations(candidate, k-1): 
                      if tuple(sorted(subset)) not in last_L:
                           prune = False
                           break
                 if prune == True: # All subsets are frequent
-                     candidates.add(union_tuple)
+                     candidates.add(candidate)
         
         # Get support counts for candidate itemsets (counts are more efficient)
         support_count = defaultdict(int)
@@ -135,17 +137,18 @@ def print_results(frequent, rules, min_sup, min_conf):
         min_sup (float): Minimum support (between 0 and 1).
         min_conf (float): Minimum confidence (between 0 and 1).
     """
-    print(f"==Frequent itemsets (min_sup={min_sup*100}%)")
-    for item, support in sorted(frequent.items(), key = lambda x: (-x[1], x[0])):
-        # Convert tuple to clean string
-        # item = ', '.join(item)
-        print(f"[{item}], {support*100}%")
-    print(f"==High-confidence association rules (min_conf={min_conf*100}%)")
-    for lhs, rhs, support, conf in sorted(rules, key = lambda x: (-x[3], x[0])):
-        # Convert tuples to clean strings
-        # lhs = ', '.join(lhs)
-        # rhs = ', '.join(rhs)
-        print(f"[{lhs}]=>[{rhs}] (Conf: {conf*100}%, Supp: {support*100}%)")
+    with open('output.txt', 'w') as file:
+        file.write(f"==Frequent itemsets (min_sup={min_sup*100}%)\n")
+        for item, support in sorted(frequent.items(), key = lambda x: (-x[1], x[0])):
+            # Convert tuple to clean string
+            # item = ', '.join(item)
+            file.write(f"[{item}], {support*100}%\n")
+        file.write(f"==High-confidence association rules (min_conf={min_conf*100}%)\n")
+        for lhs, rhs, support, conf in sorted(rules, key = lambda x: (-x[3], x[0])):
+            # Convert tuples to clean strings
+            # lhs = ', '.join(lhs)
+            # rhs = ', '.join(rhs)
+            file.write(f"[{lhs}]=>[{rhs}] (Conf: {conf*100}%, Supp: {support*100}%)\n")
 
 def main():
     try:
