@@ -138,14 +138,14 @@ def print_results(frequent, rules, min_sup, min_conf):
     print(f"==Frequent itemsets (min_sup={min_sup*100}%)")
     for item, support in sorted(frequent.items(), key = lambda x: (-x[1], x[0])):
         # Convert tuple to clean string
-        item_str = ', '.join(item)
-        print(f"[{item_str}], {support*100}%")
+        # item = ', '.join(item)
+        print(f"[{item}], {support*100}%")
     print(f"==High-confidence association rules (min_conf={min_conf*100}%)")
     for lhs, rhs, support, conf in sorted(rules, key = lambda x: (-x[3], x[0])):
         # Convert tuples to clean strings
-        lhs_str = ', '.join(lhs)
-        rhs_str = ', '.join(rhs)
-        print(f"[{lhs_str}]=>[{rhs_str}] (Conf: {conf*100}%, Supp: {support*100}%)")
+        # lhs = ', '.join(lhs)
+        # rhs = ', '.join(rhs)
+        print(f"[{lhs}]=>[{rhs}] (Conf: {conf*100}%, Supp: {support*100}%)")
 
 def main():
     try:
@@ -156,11 +156,24 @@ def main():
         with open(file_name, 'r', newline='', encoding='utf-8') as data:
             read = csv.reader(data)
             transactions = []
+            
+            # For column names
+            headers = next(read, [])
+            
             i = 0
             for line in read:
-                i+=1
-                stripped_items = [item.strip() for item in line if item.strip()]
-                transactions.append(tuple(sorted(stripped_items)))
+                i += 1
+                # Create items with column name and value (e.g., "AGE_GROUP=25-44")
+                labeled_items = []
+                for col_index, item in enumerate(line):
+                    if item.strip():  # Skip empty values
+                        # Use column name if available, otherwise use index
+                        col_name = headers[col_index] if col_index < len(headers) else f"col_{col_index}"
+                        labeled_items.append(f"{col_name}={item.strip()}")
+                
+                if labeled_items:  # Only add non-empty transactions
+                    transactions.append(tuple(sorted(labeled_items)))
+                
         if min_sup < 0 or min_sup > 1:
             raise ValueError(f"min_sup has to be between 0 and 1. input value:  {min_sup}")
         if min_conf < 0 or min_conf > 1:
