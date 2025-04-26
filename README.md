@@ -39,7 +39,7 @@ Developed by Phoebe Tang and Matthew Labasan.
   - `<dataset_path>` is the path to the desired csv file
   - `<support>` minimum support for association rules - decimal between 0 and 1
   - `<confidence>` minimum confidence for association rules - decimal between 0 and 1
-  - Ex : python3 main.py ./INTEGRATED-DATASET.csv 0.1 0.5
+  - Ex : `python3 main.py ./INTEGRATED-DATASET.csv 0.1 0.5`
 
 # Description of Project
 ## Dataset Selection
@@ -51,6 +51,7 @@ Using this dataset, we are able to obtain association rules that reveal relation
 These association rules can be valuable in identifying which demographics and areas within the city are more affected by shootings. This information could help focus resources on education initiatives about gun violence or guide decisions around enforcing stricter gun control measures in targeted areas. Additionally, it can inform outreach efforts toward communities that may benefit most from preventative resources. However, it is important to approach these findings thoughtfully and avoid using them to further stigmatize already marginalized populations.
 
 ## Internal Design
-For a description of the internal design, please see p.4-8 of our report [here](./submission/Project3_Report.pdf).
+For a description of the internal design, please see p.3-6 of our report [here](./submission/Project3_Report.pdf).
+
 For sample association rules, please see our result transcripts [here](./example-run.txt).
 
