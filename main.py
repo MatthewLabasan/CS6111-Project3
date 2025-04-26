@@ -137,7 +137,7 @@ def print_results(frequent, rules, min_sup, min_conf):
         min_sup (float): Minimum support (between 0 and 1).
         min_conf (float): Minimum confidence (between 0 and 1).
     """
-    with open('output.txt', 'w') as file:
+    with open('example-run.txt', 'w') as file:
         file.write(f"==Frequent itemsets (min_sup={min_sup*100}%)\n")
         for item, support in sorted(frequent.items(), key = lambda x: (-x[1], x[0])):
             # Convert tuple to clean string
@@ -155,27 +155,36 @@ def main():
         file_name = sys.argv[1]
         min_sup = float(sys.argv[2])
         min_conf = float(sys.argv[3])
+        datacsv_check = False
 
         with open(file_name, 'r', newline='', encoding='utf-8') as data:
             read = csv.reader(data)
             transactions = []
-            
-            # For column names
-            headers = next(read, [])
-            
-            i = 0
-            for line in read:
-                i += 1
-                # Create items with column name and value (e.g., "AGE_GROUP=25-44")
-                labeled_items = []
-                for col_index, item in enumerate(line):
-                    if item.strip():  # Skip empty values
-                        # Use column name if available, otherwise use index
-                        col_name = headers[col_index] if col_index < len(headers) else f"col_{col_index}"
-                        labeled_items.append(f"{col_name}={item.strip()}")
-                
-                if labeled_items:  # Only add non-empty transactions
-                    transactions.append(tuple(sorted(labeled_items)))
+
+            # For testing data.csv
+            if datacsv_check:
+                i = 0
+                for line in read:
+                    i+=1
+                    stripped_items = [item.strip() for item in line if item.strip()]
+                    transactions.append(tuple(sorted(stripped_items)))
+
+            # For real data, with column names
+            else:
+                headers = next(read, [])
+                i = 0
+                for line in read:
+                    i += 1
+                    # Create items with column name and value (e.g., "AGE_GROUP=25-44")
+                    labeled_items = []
+                    for col_index, item in enumerate(line):
+                        if item.strip():  # Skip empty values
+                            # Use column name if available, otherwise use index
+                            col_name = headers[col_index] if col_index < len(headers) else f"col_{col_index}"
+                            labeled_items.append(f"{col_name}={item.strip()}")
+                    
+                    if labeled_items:  # Only add non-empty transactions
+                        transactions.append(tuple(sorted(labeled_items)))
                 
         if min_sup < 0 or min_sup > 1:
             raise ValueError(f"min_sup has to be between 0 and 1. input value:  {min_sup}")
